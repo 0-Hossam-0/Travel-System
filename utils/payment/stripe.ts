@@ -1,8 +1,12 @@
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2023-10-16",
-});
+const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+
+if (!STRIPE_KEY) {
+  throw new Error("STRIPE_SECRET_KEY is missing from environment variables");
+}
+
+const stripe = new Stripe(STRIPE_KEY);
 
 interface CreateStripePaymentIntentParams {
   amount: number;
@@ -16,7 +20,7 @@ export const createStripePaymentIntent = async ({
   description,
 }: CreateStripePaymentIntentParams) => {
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: Math.round(amount * 100), // Stripe works in cents
+    amount: Math.round(amount * 100),
     currency,
     description,
     automatic_payment_methods: {
