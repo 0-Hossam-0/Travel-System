@@ -31,15 +31,12 @@ export const createPayment = async ({
       amount,
       description,
     });
-
     const approvalLink = paypalOrder.links.find(
       (link: any) => link.rel === "approve"
     );
-
     if (!approvalLink) {
       throw new Error("PayPal approval link not found");
     }
-
     const payment = await PaymentModel.create({
       bookingId,
       amount,
@@ -48,7 +45,6 @@ export const createPayment = async ({
       providerPaymentId: paypalOrder.id,
       approvalUrl: approvalLink.href,
     });
-
     return {
       paymentId: payment._id,
       status: payment.status,

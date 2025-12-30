@@ -1,11 +1,12 @@
-import express, { Request, Response } from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import helmet from 'helmet';
-import connectDB from './DB/connect';
-import { notFound } from './middleware/not-found';
-
+import dotenv from "dotenv";
 dotenv.config();
+import express, { Request, Response } from "express";
+import cors from "cors";
+import helmet from "helmet";
+import connectDB from "./DB/connect";
+import { notFound } from "./middleware/not-found";
+import paymentRouter from "./modules/payment/payment.routes";
+
 connectDB();
 
 const app = express();
@@ -15,9 +16,11 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Express + TypeScript Server is running!');
+app.get("/", (req: Request, res: Response) => {
+  res.send("Express + TypeScript Server is running!");
 });
+
+app.use("/api/payments", paymentRouter);
 
 app.use(notFound);
 

@@ -1,12 +1,10 @@
-import { Request, Response } from "express";
 import Stripe from "stripe";
+import { Request, Response } from "express";
 import PaymentModel from "./payment.model";
 import { PaymentStatus } from "./payment.types";
 import { paymentEventEmitter } from "./payment.events";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2023-10-16",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export const stripeWebhookHandler = async (req: Request, res: Response) => {
   const sig = req.headers["stripe-signature"] as string;
