@@ -5,7 +5,7 @@ export enum PaymentMethod {
 
 export enum PaymentStatus {
   PENDING = "PENDING",
-  PAID = "PAID",
+  COMPLETED = "COMPLETED",
   FAILED = "FAILED",
   REFUNDED = "REFUNDED",
 }
@@ -27,5 +27,5 @@ export interface PaymentResult {
   paymentId: string;
   status: PaymentStatus;
   approvalUrl?: string; // PayPal
-  clientSecret?: string; // Stripe (later)
+  clientSecret?: string; // Stripe
 }
