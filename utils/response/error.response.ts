@@ -3,7 +3,7 @@ export class ApplicationException extends Error {
   statusCode: number;
 
   constructor(message: string, statusCode: number = 400, cause?: any) {
-    super(message, { cause });
+    super(message);
     this.name = this.constructor.name;
     this.statusCode = statusCode;
     Error.captureStackTrace(this, this.constructor);
@@ -72,7 +72,7 @@ export const globalErrorHandler = (error: ApplicationException, req: any, res: a
     error_message: error.message || 'Something Went Wrong',
     name: error.name,
     statusCode: error.statusCode || 500,
-    cause: error.cause,
+    // cause: error.cause,
     error_stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
   });
 };
