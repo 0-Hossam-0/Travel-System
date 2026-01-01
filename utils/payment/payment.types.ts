@@ -1,6 +1,6 @@
 export enum PaymentMethod {
   PAYPAL = "PAYPAL",
-  CARD = "CARD", // Visa / Mastercard
+  CARD = "CARD",
 }
 
 export enum PaymentStatus {
@@ -26,6 +26,6 @@ export interface CreatePaymentInput {
 export interface PaymentResult {
   paymentId: string;
   status: PaymentStatus;
-  approvalUrl?: string; // PayPal
-  clientSecret?: string; // Stripe
+  approvalUrl?: string;
+  clientSecret?: string;
 }

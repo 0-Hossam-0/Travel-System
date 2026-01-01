@@ -42,7 +42,7 @@ export const resetPasswordRequest = async (
     email: user.email,
     ...template,
   });
-  return successResponse({ res, message: "Reset link sent to your email!" });
+  return successResponse(res, { message: "Reset link sent to your email!" });
 };
 
 export const resetPasswordConfirm = async (req: Request, res: Response) => {
@@ -65,8 +65,7 @@ export const resetPasswordConfirm = async (req: Request, res: Response) => {
   user.passwordResetExpires = undefined;
 
   await user.save();
-  return successResponse({
-    res,
+  return successResponse(res, {
     message: "Password updated successfully! You can now log in",
   });
 };
@@ -104,8 +103,7 @@ export const registerUser = async (req: Request, res: Response) => {
     createdAt: createdUser.createdAt,
   };
 
-  return successResponse({
-    res,
+  return successResponse(res, {
     statusCode: 201,
     message: "User registered successfully",
     data: userResponse,
@@ -133,8 +131,7 @@ export const login = async (req: Request, res: Response) => {
 
   setTokenCookie(res, credentials);
 
-  return successResponse({
-    res,
+  return successResponse(res, {
     info: "Credentials Saved In User Cookies",
   });
 };
