@@ -15,7 +15,8 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "helmet": "^8.1.0",
-    "mongoose": "^9.0.2"
+    "mongoose": "^9.0.2",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
