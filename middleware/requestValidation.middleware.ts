@@ -12,7 +12,7 @@ export const validateRequest = (schema: ZodObject) => {
 
     if (!result.success) {
       const formattedMessage = result.error.issues
-        .map((issue) => {
+        .map((issue: { path: string | any[]; message: any; }) => {
           const field = issue.path[issue.path.length - 1];
           return `${field.toString()}: ${issue.message}`;
         })
