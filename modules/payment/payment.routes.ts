@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validate } from "../../middleware/validate";
+import { validateRequest } from "../../middleware/requestValidation.middleware";
 import {
   createPaymentController,
   capturePaymentController,
@@ -16,10 +16,10 @@ router.post(
   stripeWebhookHandler
 );
 
-router.post("/", validate(createPaymentSchema), createPaymentController);
+router.post("/", validateRequest(createPaymentSchema), createPaymentController);
 router.post(
   "/:paymentId/capture",
-  validate(capturePaymentSchema),
+  validateRequest(capturePaymentSchema),
   capturePaymentController
 );
 
