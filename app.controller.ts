@@ -3,13 +3,16 @@ import tourRouter from "./modules/tour/tour.controller";
 import { notFound } from "./middleware/notFound.middleware";
 import { globalErrorHandler } from "./utils/response/error.response";
 import authRouter from "./modules/authentication/authentication.controller";
-import paymentRouter from "./modules/payment/payment.routes";
 import cors from "cors";
 import helmet from "helmet";
 import connectDB from "./DB/connect";
+import {
+  capturePayPalOrder,
+  createPayPalOrder,
+} from "./utils/payment/paypal.payment";
 
 const bootstrap = (app: Application) => {
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 300
 
   connectDB();
 
@@ -22,9 +25,29 @@ const bootstrap = (app: Application) => {
   });
   app.use("/auth", authRouter);
 
-  app.use("/tours", tourRouter);
+  app.post("/order/request", async (req: Request, res: Response) => {
+    const { price, description, userId, tourId } = req.body;
+    const result = await createPayPalOrder({
+      description: description,
+      amount: price,
+      userId,
+      tourId,
+    });
 
-  app.use("/api/payments", paymentRouter);
+    res.status(200).json({
+      result,
+    });
+  });
+  app.get("/order/confirm/:orderId", async (req: Request, res: Response) => {
+    const { orderId } = req.params;
+    const result = await capturePayPalOrder(orderId);
+
+    res.status(200).json({
+      result,
+    });
+  });
+
+  app.use("/tours", tourRouter);
 
   app.use(notFound);
 

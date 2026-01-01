@@ -6,9 +6,7 @@ import { sendEmail } from "../../utils/response/email/sendEmail.email";
 import { getResetPasswordTemplate } from "../../utils/response/email/resetPassword.template";
 import { BadRequestException } from "../../utils/response/error.response";
 import crypto from "crypto";
-import {
-  EmailTemplate,
-} from "../../utils/response/email/email.types";
+import { EmailTemplate } from "../../utils/response/email/email.types";
 import { hashString } from "../../utils/security/hash.security";
 import { successResponse } from "../../utils/response/success.response";
 
@@ -38,7 +36,7 @@ export const resetPasswordRequest = async (
     email: user.email,
     ...template,
   });
-  return successResponse({ res, message: "Reset link sent to your email!" });
+  return successResponse(res, { message: "Reset link sent to your email!" });
 };
 
 export const resetPasswordConfirm = async (req: Request, res: Response) => {
@@ -61,8 +59,7 @@ export const resetPasswordConfirm = async (req: Request, res: Response) => {
   user.passwordResetExpires = undefined;
 
   await user.save();
-  return successResponse({
-    res,
+  return successResponse(res, {
     message: "Password updated successfully! You can now log in",
   });
 };
