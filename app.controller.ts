@@ -11,12 +11,14 @@ import {
   capturePayPalOrder,
   createPayPalOrder,
 } from "./utils/payment/paypal.payment";
+import cookieParser from "cookie-parser";
 
 const bootstrap = (app: Application) => {
   const port = process.env.PORT || 3000;
 
   connectDB();
 
+  app.use(cookieParser());
   app.use(helmet());
   app.use(cors());
   app.use(express.json());
@@ -116,7 +118,7 @@ const bootstrap = (app: Application) => {
   app.use(globalErrorHandler);
 
   app.listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`);
+    console.log(`Server is running at http://localhost:${port}`);
   });
 };
 

@@ -3,4 +3,3 @@ const GeneralFields = Object.freeze({
   USERNAME_REGEX: /^[A-Z][a-z]+\s[A-Z][a-z]+$/,
   PASSWORD_REGEX: /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$/,
 });
-

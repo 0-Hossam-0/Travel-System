@@ -1,9 +1,11 @@
+import { IImage } from './../../types/image.interface';
 import { Schema, model, Document } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
   email: string;
   password?: string;
+  profilePicture?:IImage;
   isVerified: boolean;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
@@ -34,6 +36,14 @@ const userSchema = new Schema<IUser>(
     isVerified: {
       type: Boolean,
       default: false,
+    },
+
+    profilePicture:{
+      type:{
+        url:String,
+        public_id:String
+      },
+      _id:false
     },
     passwordResetToken: String,
     passwordResetExpires: Date,
