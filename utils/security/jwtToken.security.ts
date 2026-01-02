@@ -1,8 +1,30 @@
 import crypto from "crypto";
+import bcrypt from "bcrypt";
+import ms, { StringValue } from "ms";
+import { OTPModel } from "../../DB/models/otp.model";
+import { CreateAndStoreOtpProps } from "../otp/otp.types";
 
-export const createRandomToken = () => {
-  const token = crypto
-    .randomBytes(Number(process.env.RANDOM_BYTES_COUNT || 12))
-    .toString("hex");
-  return token;
+export const createAndStoreOTP = async ({
+  userId,
+  otpType,
+}: CreateAndStoreOtpProps): Promise<string> => {
+  const length = Number(process.env.OTP_DIGIT_COUNTER || 4);
+  const max = Math.pow(10, length);
+  const rawOtp = crypto.randomInt(0, max).toString().padStart(length, "0");
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedOtp = await bcrypt.hash(rawOtp, salt);
+
+  const expirationString = (process.env.OTP_EXPIRATION || "10m") as StringValue;
+  const otpExpirationMs = ms(expirationString);
+  const expiresAt = new Date(Date.now() + otpExpirationMs);
+
+  await OTPModel.create({
+    userId: userId,
+    otp: hashedOtp,
+    expiresAt: expiresAt,
+    type: otpType,
+  });
+
+  return rawOtp;
 };

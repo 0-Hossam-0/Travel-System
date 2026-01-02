@@ -5,8 +5,8 @@ export interface IUser extends Document {
   email: string;
   password?: string;
   isVerified: boolean;
-  passwordResetToken?: string;
-  passwordResetExpires?: Date;
+  forgetPasswordOTP?: string;
+  forgetPasswordOTPExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,8 +35,8 @@ const userSchema = new Schema<IUser>(
       type: Boolean,
       default: false,
     },
-    passwordResetToken: String,
-    passwordResetExpires: Date,
+    forgetPasswordOTP: String,
+    forgetPasswordOTPExpires: Date,
   },
   {
     timestamps: true,
