@@ -1,7 +1,5 @@
-import { Application, Request, Response } from "express";
-import express from "express";
+import express, { Application, Request, Response } from "express";
 import tourRouter from "./modules/tour/tour.controller";
-import hotelRouter from "./modules/hotel/hotel.controller";
 import { notFound } from "./middleware/notFound.middleware";
 import { globalErrorHandler } from "./utils/response/error.response";
 import authRouter from "./modules/authentication/authentication.controller";
@@ -11,10 +9,10 @@ import connectDB from "./DB/connect";
 import {
   capturePayPalOrder,
   createPayPalOrder,
-} from "./utils/payment/paypal";
+} from "./utils/payment/paypal.payment";
 
-export const bootstrap = (app: Application) => {
-  const port = process.env.PORT || 3000;
+const bootstrap = (app: Application) => {
+  const port = process.env.PORT || 300
 
   connectDB();
 
@@ -22,11 +20,10 @@ export const bootstrap = (app: Application) => {
   app.use(cors());
   app.use(express.json());
 
-  app.get("/", (req: Request, res: Response) => {
-    res.send("Express + TypeScript Server is running!");
-  });
 
-  app.post("/order/request", async (req: Request, res: Response) => {
+  app.use("/api/auth", authRouter);
+
+  app.post("/api/order/request", async (req: Request, res: Response) => {
     const { price, description, userId, tourId } = req.body;
     const result = await createPayPalOrder({
       description: description,
@@ -39,7 +36,6 @@ export const bootstrap = (app: Application) => {
       result,
     });
   });
-
   app.get("/order/confirm/:orderId", async (req: Request, res: Response) => {
     const { orderId } = req.params;
     const result = await capturePayPalOrder(orderId);
@@ -49,15 +45,19 @@ export const bootstrap = (app: Application) => {
     });
   });
 
-  // Module Routes
-  app.use("/tours", tourRouter);
-  app.use("/hotels", hotelRouter);
+  app.use("/api/tours", tourRouter);
 
   app.use(notFound);
 
   app.use(globalErrorHandler);
 
+  app.get("/", (req: Request, res: Response) => {
+    res.send("Express + TypeScript Server is running!");
+  });
+
   app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
   });
 };
+
+export default bootstrap;

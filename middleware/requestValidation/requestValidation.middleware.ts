@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { BadRequestException } from "../utils/response/error.response";
+import { BadRequestException } from "../../utils/response/error.response";
 import { ZodObject } from "zod";
 
 export const validateRequest = (schema: ZodObject) => {
@@ -12,7 +12,7 @@ export const validateRequest = (schema: ZodObject) => {
 
     if (!result.success) {
       const formattedMessage = result.error.issues
-        .map((issue: { path: string | any[]; message: any; }) => {
+        .map((issue: { path: string | any[]; message: any }) => {
           const field = issue.path[issue.path.length - 1];
           return `${field.toString()}: ${issue.message}`;
         })

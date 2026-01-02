@@ -1,8 +1,9 @@
 import axios from "axios";
 import dotenv from "dotenv";
 import PaymentModel from "../../DB/models/payment.model";
-import { PaymentMethod, PaymentStatus } from "../../modules/payment/payment.types";
+// import { PaymentMethod, PaymentStatus } from "../../modules/payment/payment.types";
 import { Types } from "mongoose";
+import { PaymentMethod, PaymentStatus } from "./payment.types";
 
 dotenv.config();
 
