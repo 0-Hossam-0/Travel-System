@@ -20,12 +20,10 @@ const bootstrap = (app: Application) => {
   app.use(cors());
   app.use(express.json());
 
-  app.get("/", (req: Request, res: Response) => {
-    res.send("Express + TypeScript Server is running!");
-  });
-  app.use("/auth", authRouter);
 
-  app.post("/order/request", async (req: Request, res: Response) => {
+  app.use("/api/auth", authRouter);
+
+  app.post("/api/order/request", async (req: Request, res: Response) => {
     const { price, description, userId, tourId } = req.body;
     const result = await createPayPalOrder({
       description: description,
@@ -47,7 +45,7 @@ const bootstrap = (app: Application) => {
     });
   });
 
-  app.use("/tours", tourRouter);
+  app.use("/api/tours", tourRouter);
 
   app.use(notFound);
 
