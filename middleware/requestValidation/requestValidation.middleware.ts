@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { BadRequestException } from "../../utils/response/error.response";
-import { ZodObject } from "zod";
+import { ZodObject, ZodSchema } from "zod";
 
-export const validateRequest = (schema: ZodObject) => {
+export const validateRequest = (schema: ZodSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const result = await schema.safeParseAsync({
       body: req.body,
@@ -11,14 +11,14 @@ export const validateRequest = (schema: ZodObject) => {
     });
 
     if (!result.success) {
-      const formattedMessage = result.error.issues
-        .map((issue: { path: string | any[]; message: any }) => {
-          const field = issue.path[issue.path.length - 1];
-          return `${field.toString()}: ${issue.message}`;
-        })
-        .join(", ");
+      const errorDetails = result.error.issues.map((issue) => {
+        return {
+          field: issue.path[issue.path.length - 1] || "root",
+          message: issue.message,
+        };
+      });
 
-      return next(new BadRequestException(formattedMessage));
+      return next(new BadRequestException("Validation Error", errorDetails));
     }
 
     return next();

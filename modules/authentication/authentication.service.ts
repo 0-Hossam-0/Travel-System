@@ -1,70 +1,82 @@
 import { setTokenCookie } from "./../../utils/cookies/cookies";
 import { generateTokens } from "./../../utils/security/token.security";
 import { Request, Response } from "express";
-import { ForgetPasswordRequest, LoginRequest } from "./types/request.types";
+import {
+  ForgetPasswordConfirm,
+  ForgetPasswordRequest,
+  LoginRequest,
+} from "./types/request.types";
 import UserModel from "../../DB/models/user.model";
-import { createRandomToken } from "../../utils/security/jwtToken.security";
-import { sendEmail } from "../../utils/response/email/sendEmail.email";
-import { getResetPasswordTemplate } from "../../utils/response/email/resetPassword.template";
+import { createAndStoreOTP } from "../../utils/otp/create.otp";
+import { sendEmail } from "../../utils/email/sendEmail.email";
+import { getOTPTemplate } from "../../utils/email/resetPassword.template";
 import {
   BadRequestException,
   NotFoundException,
 } from "../../utils/response/error.response";
 import crypto from "crypto";
-import { EmailTemplate } from "../../utils/response/email/email.types";
+import { EmailTemplate } from "../../utils/email/email.types";
 import { compareHash, hashString } from "../../utils/security/hash.security";
 import { successResponse } from "../../utils/response/success.response";
 import { Types } from "mongoose";
+import { OtpTypes } from "../../utils/otp/otp.types";
+import { OTPModel } from "../../DB/models/otp.model";
+import bcrypt from "bcrypt";
 
-export const resetPasswordRequest = async (
+export const forgetPasswordRequest = async (
   req: ForgetPasswordRequest,
   res: Response
 ) => {
   const { email } = req.body;
   const user = await UserModel.findOne({ email });
+
   if (!user) throw new BadRequestException("Invalid email provided");
 
-  const resetToken = createRandomToken();
+  const otp = await createAndStoreOTP({
+    userId: user._id,
+    otpType: OtpTypes.FORGET_PASSWORD,
+  });
 
-  const hashedToken = crypto
-    .createHash("sha256")
-    .update(resetToken)
-    .digest("hex");
-  user.passwordResetToken = hashedToken;
-  user.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
-  await user.save();
-
-  const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-
-  const template: EmailTemplate = getResetPasswordTemplate(resetUrl);
+  const template: EmailTemplate = getOTPTemplate(otp);
 
   await sendEmail({
     email: user.email,
     ...template,
   });
-  return successResponse(res, { message: "Reset link sent to your email!" });
+
+  return successResponse(res, {
+    message: "Verification code sent to your email!",
+  });
 };
 
-export const resetPasswordConfirm = async (req: Request, res: Response) => {
-  const { token } = req.params;
-  const { password } = req.body;
+export const forgetPasswordConfirm = async (
+  req: ForgetPasswordConfirm,
+  res: Response
+) => {
+  const { otpCode, email, password } = req.body;
 
-  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+  const user = await UserModel.findOne({ email });
 
-  const user = await UserModel.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpires: { $gt: new Date() },
+  if (!user) throw new BadRequestException("Something went wrong.");
+
+  const otp = await OTPModel.findOne({
+    userId: user._id,
+    isUsed: false,
+    expiresAt: { $gt: new Date() },
   });
 
-  if (!user)
-    throw new BadRequestException("Session is invalid or has expired.");
+  if (!otp) throw new BadRequestException("Session is invalid or has expired.");
+
+  const isMatch = await bcrypt.compare(otpCode, otp.hashedOtp);
+
+  if (!isMatch) throw new BadRequestException("Invalid Otp code provided.");
 
   user.password = await hashString(password);
+  otp.isUsed = true;
 
-  user.passwordResetToken = undefined;
-  user.passwordResetExpires = undefined;
-
+  await otp.save();
   await user.save();
+
   return successResponse(res, {
     message: "Password updated successfully! You can now log in",
   });
@@ -110,8 +122,8 @@ export const registerUser = async (req: Request, res: Response) => {
   });
 };
 
-export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body as LoginRequest;
+export const login = async (req: LoginRequest, res: Response) => {
+  const { email, password } = req.body;
 
   const user = await UserModel.findOne({ email }).select("+password");
 
