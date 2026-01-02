@@ -27,6 +27,16 @@ export const resetPasswordConfirmSchema = z.object({
   body: z
     .object({
       password: UserSchema.shape.password,
+      otpCode: z
+        .string({ message: "OTP code is required" })
+        .length(Number(process.env.OTP_DIGIT_COUNTER || 4), {
+          message: `OTP must be exactly ${
+            process.env.OTP_DIGIT_COUNTER || 4
+          } digits`,
+        }),
+      email: z
+        .string({ message: "Email is required" })
+        .email("Please provide a valid email address"),
       confirmPassword: z
         .string({ message: "Confirm password is required" })
         .min(1, "Please confirm your password"),

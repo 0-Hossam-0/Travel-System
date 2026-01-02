@@ -21,7 +21,8 @@ export const createAndStoreOTP = async ({
 
   await OTPModel.create({
     userId: userId,
-    otp: hashedOtp,
+    hashedOtp: hashedOtp,
+    isUsed: false,
     expiresAt: expiresAt,
     type: otpType,
   });

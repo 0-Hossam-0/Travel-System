@@ -97,5 +97,5 @@ const TourSchema = new Schema<ITour>(
   { timestamps: true }
 );
 
-export const Tour = mongoose.model<ITour>("Tour", TourSchema);
-export default Tour;
+export const TourModel = mongoose.model<ITour>("Tour", TourSchema);
+export default TourModel;

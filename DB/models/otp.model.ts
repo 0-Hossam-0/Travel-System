@@ -1,22 +1,28 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, Types, model, Document } from "mongoose";
 import { OtpTypes } from "../../utils/otp/otp.types";
 
 interface IOTP extends Document {
-  userId: Schema.Types.ObjectId;
-  otp: string;
-  type: typeof OtpTypes;
+  userId: Types.ObjectId;
+  hashedOtp: string;
+  type: string;
+  isUsed: boolean;
   expiresAt: Date;
 }
 
 const otpSchema = new Schema<IOTP>(
   {
     userId: {
-      type: Schema.Types.ObjectId,
+      type: Types.ObjectId,
       ref: "User",
       required: true,
     },
-    otp: {
+    hashedOtp: {
       type: String,
+      required: true,
+    },
+    isUsed: {
+      type: Boolean,
+      default: false,
       required: true,
     },
     type: {

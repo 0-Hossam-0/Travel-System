@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
-  resetPasswordRequest,
-  resetPasswordConfirm,
+  forgetPasswordRequest,
+  forgetPasswordConfirm,
   login,
 } from "./authentication.service";
 import { validateRequest } from "../../middleware/requestValidation/requestValidation.middleware";
@@ -17,13 +17,13 @@ const authRouter = Router();
 authRouter.post(
   "/forgot-password/request",
   validateRequest(resetPasswordRequestSchema),
-  resetPasswordRequest
+  forgetPasswordRequest
 );
 
 authRouter.post(
   "/forgot-password/confirm/:token",
   validateRequest(resetPasswordConfirmSchema),
-  resetPasswordConfirm
+  forgetPasswordConfirm
 );
 
 authRouter.post("/signup", registerUser);
