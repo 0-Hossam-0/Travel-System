@@ -62,6 +62,7 @@ export const forgetPasswordConfirm = async (
   const otp = await OTPModel.findOne({
     userId: user._id,
     isUsed: false,
+    type: OtpTypes.FORGET_PASSWORD,
     expiresAt: { $gt: new Date() },
   });
 
