@@ -5,26 +5,27 @@ import { NotFoundException } from "../../utils/response/error.response";
 
 const router = Router();
 
-router.post("/createTour", (req: Request, res: Response, next: NextFunction) => {
-  tourService
-    .createTour(req.body)
-    .then((tour) => {
-      return successResponse({
-        res,
-        statusCode: 201,
-        message: "Tour created successfully",
-        data: tour,
-      });
-    })
-    .catch(next);
-});
+router.post(
+  "/createTour",
+  (req: Request, res: Response, next: NextFunction) => {
+    tourService
+      .createTour(req.body)
+      .then((tour) => {
+        return successResponse(res, {
+          statusCode: 201,
+          message: "Tour created successfully",
+          data: tour,
+        });
+      })
+      .catch(next);
+  }
+);
 
 router.get("/", (req: Request, res: Response, next: NextFunction) => {
   tourService
     .getTours(req.query)
     .then((tours) => {
-      return successResponse({
-        res,
+      return successResponse(res, {
         message: "Tours retrieved successfully",
         data: tours,
       });
@@ -39,8 +40,7 @@ router.get("/:id", (req: Request, res: Response, next: NextFunction) => {
       if (!tour) {
         return next(new NotFoundException("Tour not found"));
       }
-      return successResponse({
-        res,
+      return successResponse(res, {
         message: "Tour retrieved successfully",
         data: tour,
       });
@@ -48,36 +48,40 @@ router.get("/:id", (req: Request, res: Response, next: NextFunction) => {
     .catch(next);
 });
 
-router.patch("/updateTour/:id", (req: Request, res: Response, next: NextFunction) => {
-  tourService
-    .updateTour(req.params.id, req.body)
-    .then((tour) => {
-      if (!tour) {
-        return next(new NotFoundException("Tour not found"));
-      }
-      return successResponse({
-        res,
-        message: "Tour updated successfully",
-        data: tour,
-      });
-    })
-    .catch(next);
-});
+router.patch(
+  "/updateTour/:id",
+  (req: Request, res: Response, next: NextFunction) => {
+    tourService
+      .updateTour(req.params.id, req.body)
+      .then((tour) => {
+        if (!tour) {
+          return next(new NotFoundException("Tour not found"));
+        }
+        return successResponse(res, {
+          message: "Tour updated successfully",
+          data: tour,
+        });
+      })
+      .catch(next);
+  }
+);
 
-router.delete("/deleteTour/:id", (req: Request, res: Response, next: NextFunction) => {
-  tourService
-    .deleteTour(req.params.id)
-    .then((tour) => {
-      if (!tour) {
-        return next(new NotFoundException("Tour not found"));
-      }
-      return successResponse({
-        res,
-        message: "Tour deleted successfully",
-        data: tour,
-      });
-    })
-    .catch(next);
-});
+router.delete(
+  "/deleteTour/:id",
+  (req: Request, res: Response, next: NextFunction) => {
+    tourService
+      .deleteTour(req.params.id)
+      .then((tour) => {
+        if (!tour) {
+          return next(new NotFoundException("Tour not found"));
+        }
+        return successResponse(res, {
+          message: "Tour deleted successfully",
+          data: tour,
+        });
+      })
+      .catch(next);
+  }
+);
 
 export default router;
