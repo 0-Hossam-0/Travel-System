@@ -18,6 +18,9 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/auth", authRouter);
+app.use("/tours", tourRouter);
+app.use("/hotels", hotelRouter);
+app.use("/api/hotels", hotelRouter);
 
 app.use(notFound);
 
