@@ -33,7 +33,7 @@ export class HotelService {
         policies
       } = payload;
   
-      // validation بسيط
+      
       if (!name || !location?.city) {
         throw new Error("Hotel name and city are required");
       }

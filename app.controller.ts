@@ -1,6 +1,6 @@
 import { Application, Request, Response } from "express";
 import tourRouter from "./modules/tour/tour.controller";
-import hotelController from "./modules/hotel/hotel.controller";
+import hotelRouter from "./modules/hotel/hotel.controller";
 export const bootstrap = (app: Application) => {
   // Root Check
   app.get("/", (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const bootstrap = (app: Application) => {
   // Module Routes
   app.use("/tours", tourRouter);
   // 
-  app.use("/hotels", hotelController);
+  app.use("/hotels", hotelRouter);
 };
 
   

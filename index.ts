@@ -1,13 +1,14 @@
+import "dotenv/config";
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import connectDB from "./DB/connect";
 import { notFound } from "./middleware/notFound.middleware";
 import { globalErrorHandler } from "./utils/response/error.response";
 import authRouter from "./modules/authentication/authentication.controller";
+import tourRouter from "./modules/tour/tour.controller";
+import hotelRouter from "./modules/hotel/hotel.controller";
 
-dotenv.config();
 connectDB();
 
 const app = express();
