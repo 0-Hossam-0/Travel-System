@@ -3,3 +3,10 @@ export interface ForgetPasswordRequest {
     email: string;
   };
 }
+
+
+
+export interface LoginRequest {
+    email: string;
+    password:string;
+}

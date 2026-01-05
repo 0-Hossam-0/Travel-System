@@ -27,10 +27,19 @@ export const resetPasswordConfirmSchema = z.object({
   body: z
     .object({
       password: UserSchema.shape.password,
-      confirmPassword: z.string({message: "Confirm password is required"}).min(1, "Please confirm your password"),
+      confirmPassword: z
+        .string({ message: "Confirm password is required" })
+        .min(1, "Please confirm your password"),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: "Passwords do not match",
       path: ["confirmPassword"],
     }),
+});
+
+export const LoginSchema = z.object({
+  body: z.strictObject({
+    email: UserSchema.shape.email,
+    password: UserSchema.shape.password,
+  }),
 });

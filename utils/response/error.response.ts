@@ -1,10 +1,12 @@
 export class ApplicationException extends Error {
   statusCode: number;
+  cause?: any;
 
   constructor(message: string, statusCode: number = 400, cause?: any) {
     super(message);
     this.name = this.constructor.name;
     this.statusCode = statusCode;
+    this.cause = cause;
     Error.captureStackTrace(this, this.constructor);
   }
 }
