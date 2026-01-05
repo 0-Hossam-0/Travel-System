@@ -79,13 +79,13 @@ const TourSchema = new Schema<ITour>(
     languages: [{ type: String }],
     difficulty: { type: String },
     providerInfo: {
-      name: { type: String },
+      name: { type: String, required: true },
       contact: { type: String },
     },
     reviews: [
       {
-        userId: { type: Schema.Types.ObjectId, ref: "User" },
-        rating: { type: Number },
+        userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+        rating: { type: Number, required: true },
         comment: { type: String },
       },
     ],
