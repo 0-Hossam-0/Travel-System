@@ -1,11 +1,14 @@
-import { IImage } from './../../types/image.interface';
+import { GeneralFields } from "./../../middleware/requestValidation/generalFields.validation";
+import { IImage } from "./../../types/image.interface";
 import { Schema, model, Document } from "mongoose";
 
 export interface IUser extends Document {
   name: string;
   email: string;
   password?: string;
-  profilePicture?:IImage;
+  address?: string;
+  phone?: string;
+  profilePicture?: IImage;
   isVerified: boolean;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
@@ -33,17 +36,28 @@ const userSchema = new Schema<IUser>(
       required: [true, "Password is required"],
       select: false,
     },
+    address: {
+      type: String,
+      minLength: 10,
+      maxLength: 200,
+    },
+    phone: {
+      type: String,
+      unique: true,
+      match: [GeneralFields.PHONE_NUMBER, "Please use a valid phone number"],
+    },
+
     isVerified: {
       type: Boolean,
       default: false,
     },
 
-    profilePicture:{
-      type:{
-        url:String,
-        public_id:String
+    profilePicture: {
+      type: {
+        url: String,
+        public_id: String,
       },
-      _id:false
+      _id: false,
     },
     passwordResetToken: String,
     passwordResetExpires: Date,
