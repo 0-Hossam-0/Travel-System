@@ -20,6 +20,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/auth", authRouter);
+app.use("/tours", tourRouter);
+app.use("/hotels", hotelRouter);
+app.use("/api/hotels", hotelRouter);
 
 app.use("/users", usersRouter);
 
