@@ -2,7 +2,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import PaymentModel from "../../DB/models/payment.model";
 // import { PaymentMethod, PaymentStatus } from "../../modules/payment/payment.types";
-import { Types } from "mongoose";
+import { Types, ClientSession } from "mongoose";
 import { PaymentMethod, PaymentStatus } from "./payment.types";
 
 dotenv.config();
@@ -44,6 +44,8 @@ interface CreatePayPalOrderParams {
   description?: string;
   userId?: string | Types.ObjectId;
   tourId?: string | Types.ObjectId;
+  bookingId?: string | Types.ObjectId;
+  session?: ClientSession;
 }
 
 export const createPayPalOrder = async ({
@@ -51,6 +53,8 @@ export const createPayPalOrder = async ({
   description,
   userId,
   tourId,
+  bookingId,
+  session,
 }: CreatePayPalOrderParams) => {
   const accessToken = await getAccessToken();
 
@@ -84,18 +88,19 @@ export const createPayPalOrder = async ({
 
   const result = response.data;
 
-  const approvalLink = result.links.find((link: any) => link.rel === "approve");
+  const approvalLink = result.links.find((link: { rel: string; href: string }) => link.rel === "approve");
 
-  await PaymentModel.create({
+  await PaymentModel.create([{
     userId,
     tourId,
+    bookingId,
     amount,
     description,
     method: PaymentMethod.PAYPAL,
     status: PaymentStatus.PENDING,
     providerPaymentId: result.id,
     approvalUrl: approvalLink ? approvalLink.href : undefined,
-  });
+  }], { session });
 
   return result;
 };

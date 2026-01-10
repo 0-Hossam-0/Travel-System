@@ -4,13 +4,14 @@ import {
   forgetPasswordConfirm,
   login,
 } from "./authentication.service";
-import { validateRequest } from "../../middleware/requestValidation/requestValidation.middleware";
+import validateRequest from "../../middleware/requestValidation/requestValidation.middleware";
 import {
   resetPasswordRequestSchema,
   resetPasswordConfirmSchema,
   LoginSchema,
-} from "./types/zod.types";
-import { registerUser } from "./authentication.service";
+  SignupSchema,
+} from "./types/authentication.schema";
+import { registerUser, refreshToken } from "./authentication.service";
 
 const authRouter = Router();
 
@@ -26,7 +27,10 @@ authRouter.post(
   forgetPasswordConfirm
 );
 
-authRouter.post("/signup", registerUser);
+authRouter.post("/signup", validateRequest(SignupSchema), registerUser);
 
 authRouter.post("/login", validateRequest(LoginSchema), login);
+
+authRouter.get("/refresh", refreshToken);
+
 export default authRouter;

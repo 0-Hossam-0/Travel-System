@@ -3,47 +3,33 @@ import tourRouter from "./modules/tour/tour.controller";
 import { notFound } from "./middleware/notFound.middleware";
 import { globalErrorHandler } from "./utils/response/error.response";
 import authRouter from "./modules/authentication/authentication.controller";
+import roomRouter from "./modules/room/room.controller";
+import hotelRouter from "./modules/hotel/hotel.controller";
+import carRouter from "./modules/car/car.controller";
 import cors from "cors";
 import helmet from "helmet";
 import connectDB from "./DB/connect";
-import {
-  capturePayPalOrder,
-  createPayPalOrder,
-} from "./utils/payment/paypal.payment";
+import cookieParser from "cookie-parser";
 
 const bootstrap = (app: Application) => {
-  const port = process.env.PORT || 300
+  const port = process.env.PORT || 300;
 
   connectDB();
 
   app.use(helmet());
   app.use(cors());
   app.use(express.json());
-
+  app.use(cookieParser());
 
   app.use("/api/auth", authRouter);
 
-  app.post("/api/order/request", async (req: Request, res: Response) => {
-    const { price, description, userId, tourId } = req.body;
-    const result = await createPayPalOrder({
-      description: description,
-      amount: price,
-      userId,
-      tourId,
-    });
+  app.use("/api/room", roomRouter);
 
-    res.status(200).json({
-      result,
-    });
-  });
-  app.get("/order/confirm/:orderId", async (req: Request, res: Response) => {
-    const { orderId } = req.params;
-    const result = await capturePayPalOrder(orderId);
+  app.use("/api/hotel", hotelRouter);
 
-    res.status(200).json({
-      result,
-    });
-  });
+  // app.use("/api/booking", bookingRouter);
+  
+  app.use("/api/car", carRouter);
 
   app.use("/api/tours", tourRouter);
 

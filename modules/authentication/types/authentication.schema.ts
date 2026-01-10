@@ -53,3 +53,11 @@ export const LoginSchema = z.object({
     password: UserSchema.shape.password,
   }),
 });
+
+export const SignupSchema = z.object({
+  body: z.object({
+    name: UserSchema.shape.name,
+    email: UserSchema.shape.email,
+    password: UserSchema.shape.password,
+  }),
+});

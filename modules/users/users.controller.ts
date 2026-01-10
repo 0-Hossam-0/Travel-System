@@ -1,7 +1,18 @@
 import { authMiddleware } from "./../../middleware/auth.middleware";
 import { Router } from "express";
-import * as usersService from "./users.service";
+import { successResponse } from "../../utils/response/success.response";
+import { AuthRequest } from "../../public types/authentication/request.types";
+import { Response, Request } from "express";
 
 export const usersRouter = Router();
 
-usersRouter.get("/my-profile", authMiddleware, usersService.myProfile);
+usersRouter.get(
+  "/my-profile",
+  authMiddleware,
+  (req: Request, res: Response) => {
+    const authRequest = req as AuthRequest;
+    return successResponse(res, {
+      data: authRequest.user,
+    });
+  }
+);
