@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { BadRequestException } from "../../utils/response/error.response";
 import { ZodObject, ZodSchema } from "zod";
 
-export const validateRequest = (schema: ZodSchema) => {
+const validateRequest = (schema: ZodSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const result = await schema.safeParseAsync({
       body: req.body,
@@ -24,3 +24,5 @@ export const validateRequest = (schema: ZodSchema) => {
     return next();
   };
 };
+
+export default validateRequest;

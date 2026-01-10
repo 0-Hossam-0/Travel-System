@@ -1,86 +1,115 @@
 import { Router, Request, Response, NextFunction } from "express";
-import * as tourService from "./tour.service";
+import * as TourService from "./tour.service";
 import { successResponse } from "../../utils/response/success.response";
+import mongoose from "mongoose";
+import { AuthRequest } from "../../public types/authentication/request.types";
+import validateRequest from "../../middleware/requestValidation/requestValidation.middleware";
+import { createTourSchema } from "./types/createTour.schema";
+import { authMiddleware } from "../../middleware/auth.middleware";
+import {
+  getToursRequestSchema,
+  IGetToursRequest,
+} from "./types/getTours.schema";
 import { NotFoundException } from "../../utils/response/error.response";
+import { updateTourSchema } from "./types/updateTour.schema";
+import { deleteTourSchema } from "./types/deleteTour.schema";
 
 const router = Router();
 
 router.post(
-  "/createTour",
-  (req: Request, res: Response, next: NextFunction) => {
-    tourService
-      .createTour(req.body)
-      .then((tour) => {
-        return successResponse(res, {
-          statusCode: 201,
-          message: "Tour created successfully",
-          data: tour,
-        });
-      })
-      .catch(next);
+  "/",
+  authMiddleware,
+  validateRequest(createTourSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const authReq = req as AuthRequest;
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const newTour = await TourService.createFullTour(
+        req.body,
+        authReq.user._id.toString(),
+        session
+      );
+
+      await session.commitTransaction();
+      successResponse(res, { data: newTour, statusCode: 201 });
+    } catch (error) {
+      await session.abortTransaction();
+      next(error);
+    } finally {
+      session.endSession();
+    }
   }
 );
 
-router.get("/", (req: Request, res: Response, next: NextFunction) => {
-  tourService
-    .getTours(req.query)
-    .then((tours) => {
-      return successResponse(res, {
-        message: "Tours retrieved successfully",
-        data: tours,
-      });
-    })
-    .catch(next);
-});
+router.get(
+  "/",
+  authMiddleware,
+  validateRequest(getToursRequestSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const tourRequest = req as IGetToursRequest;
+    const { tours, meta } = await TourService.getToursPagination(
+      tourRequest.query
+    );
+    successResponse(res, {
+      data: tours,
+      message: "Tours retrieved successfully",
+      info: meta,
+    });
+  }
+);
 
-router.get("/:id", (req: Request, res: Response, next: NextFunction) => {
-  tourService
-    .getTourById(req.params.id)
-    .then((tour) => {
-      if (!tour) {
-        return next(new NotFoundException("Tour not found"));
-      }
-      return successResponse(res, {
-        message: "Tour retrieved successfully",
-        data: tour,
-      });
-    })
-    .catch(next);
+router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+  const tour = await TourService.getTourById(req.params.id);
+  if (!tour) return new NotFoundException("Tour not found");
+
+  return successResponse(res, {
+    message: "Tour retrieved successfully",
+    data: tour,
+  });
 });
 
 router.patch(
-  "/updateTour/:id",
-  (req: Request, res: Response, next: NextFunction) => {
-    tourService
-      .updateTour(req.params.id, req.body)
-      .then((tour) => {
-        if (!tour) {
-          return next(new NotFoundException("Tour not found"));
-        }
-        return successResponse(res, {
-          message: "Tour updated successfully",
-          data: tour,
-        });
-      })
-      .catch(next);
+  "/:id",
+  authMiddleware,
+  validateRequest(updateTourSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const tour = await TourService.updateTour(req.params.id, req.body);
+
+    if (!tour) return new NotFoundException("Tour not found");
+
+    return successResponse(res, {
+      message: "Tour updated successfully",
+      data: tour,
+    });
   }
 );
 
 router.delete(
-  "/deleteTour/:id",
-  (req: Request, res: Response, next: NextFunction) => {
-    tourService
-      .deleteTour(req.params.id)
-      .then((tour) => {
-        if (!tour) {
-          return next(new NotFoundException("Tour not found"));
-        }
-        return successResponse(res, {
-          message: "Tour deleted successfully",
-          data: tour,
-        });
-      })
-      .catch(next);
+  "/:id",
+  authMiddleware,
+  validateRequest(deleteTourSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const tour = await TourService.deleteTour(req.params.id, session);
+
+      if (!tour) throw new NotFoundException("Tour not found");
+
+      await session.commitTransaction();
+      successResponse(res, {
+        message: "Tour deleted successfully",
+        data: tour,
+      });
+    } catch (error) {
+      await session.abortTransaction();
+      next(error);
+    } finally {
+      session.endSession();
+    }
   }
 );
 

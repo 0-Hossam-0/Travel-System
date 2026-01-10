@@ -1,20 +1,20 @@
 import { setTokenCookie } from "./../../utils/cookies/cookies";
-import { generateTokens } from "./../../utils/security/token.security";
+import { generateToken, verifyToken } from "./../../utils/security/token.security";
 import { Request, Response } from "express";
 import {
   ForgetPasswordConfirm,
   ForgetPasswordRequest,
   LoginRequest,
 } from "./types/request.types";
-import UserModel from "../../DB/models/user.model";
+import UserModel from "../../DB/models/user/user.model";
 import { createAndStoreOTP } from "../../utils/otp/create.otp";
 import { sendEmail } from "../../utils/email/sendEmail.email";
 import { getOTPTemplate } from "../../utils/email/resetPassword.template";
 import {
   BadRequestException,
   NotFoundException,
+  UnAuthorizedException,
 } from "../../utils/response/error.response";
-import crypto from "crypto";
 import { EmailTemplate } from "../../utils/email/email.types";
 import { compareHash, hashString } from "../../utils/security/hash.security";
 import { successResponse } from "../../utils/response/success.response";
@@ -22,6 +22,7 @@ import { Types } from "mongoose";
 import { OtpTypes } from "../../utils/otp/otp.types";
 import { OTPModel } from "../../DB/models/otp.model";
 import bcrypt from "bcrypt";
+import TokenType from "../../public types/authentication/token.types";
 
 export const forgetPasswordRequest = async (
   req: ForgetPasswordRequest,
@@ -90,7 +91,6 @@ export interface IRegisterRequest {
 }
 
 export const registerUser = async (req: Request, res: Response) => {
-  // Register a new user
   const { name, email, password }: IRegisterRequest = req.body;
   if (!name) throw new BadRequestException("No name provided");
   if (!email) throw new BadRequestException("Missing email");
@@ -107,7 +107,6 @@ export const registerUser = async (req: Request, res: Response) => {
     password: hashedPassword,
   });
 
-  // Remove password from response for security
   const userResponse = {
     id: createdUser._id,
     name: createdUser.name,
@@ -128,23 +127,57 @@ export const login = async (req: LoginRequest, res: Response) => {
 
   const user = await UserModel.findOne({ email }).select("+password");
 
-  if (!user) {
-    throw new NotFoundException("User Not Exist");
-  }
+  if (!user) throw new NotFoundException("User Not Exist");
 
-  if (!user.isVerified) {
+  if (!user.isVerified)
     throw new BadRequestException("Please Verify Your Email To Login");
-  }
 
-  if (!(await compareHash(password, user.password as string))) {
+  if (!(await compareHash(password, user.password as string)))
     throw new BadRequestException("Email Or Password Incorrect");
-  }
 
-  const credentials = generateTokens(user._id as Types.ObjectId);
-
+  const accessToken = generateToken(
+    user._id as Types.ObjectId,
+    TokenType.ACCESS
+  );
+  const refreshToken = generateToken(
+    user._id as Types.ObjectId,
+    TokenType.REFRESH
+  );
+  const credentials = {
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  };
   setTokenCookie(res, credentials);
 
   return successResponse(res, {
     info: "Credentials Saved In User Cookies",
+  });
+};
+
+export const refreshToken = async (req: Request, res: Response) => {
+  const { refresh_token } = req.cookies;
+
+  if (!refresh_token) 
+    throw new UnAuthorizedException("Refresh Token Not Found");
+
+  const { user } = await verifyToken(refresh_token, TokenType.REFRESH);
+
+  const accessToken = generateToken(
+    user._id as Types.ObjectId,
+    TokenType.ACCESS
+  );
+  const newRefreshToken = generateToken(
+    user._id as Types.ObjectId,
+    TokenType.REFRESH
+  );
+
+  const credentials = {
+    access_token: accessToken,
+    refresh_token: newRefreshToken,
+  };
+  setTokenCookie(res, credentials);
+
+  return successResponse(res, {
+    info: "Token Refreshed Successfully",
   });
 };

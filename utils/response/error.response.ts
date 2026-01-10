@@ -1,3 +1,5 @@
+import { NextFunction, Request, Response } from "express";
+
 export class ApplicationException extends Error {
   statusCode: number;
   cause?: any;
@@ -76,9 +78,9 @@ export class TooManyRequestsException extends ApplicationException {
 
 export const globalErrorHandler = (
   error: ApplicationException,
-  req: any,
-  res: any,
-  next: any
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
   res.status(error.statusCode || 500).json({
     error_message: error.message || "Something Went Wrong",
