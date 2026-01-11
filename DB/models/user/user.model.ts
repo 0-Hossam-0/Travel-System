@@ -3,10 +3,13 @@ import { IUser } from "../../../schema/user/user.schema";
 import USER_VALIDATION_MESSAGES from "../../../utils/message/user/user.message";
 import USER_VALIDATION_REGEX from "../../../utils/limit/user/user.limit";
 
-interface IUserDocument extends IUser, Document {}
+interface IUserDocument extends IUser, Document {
+
+}
 
 const userSchema = new Schema<IUserDocument>(
   {
+
     name: {
       type: String,
       required: [true, USER_VALIDATION_MESSAGES.NAME_REQUIRED],
@@ -31,6 +34,13 @@ const userSchema = new Schema<IUserDocument>(
       type: String,
       required: [true, USER_VALIDATION_MESSAGES.PASSWORD_REQUIRED],
       select: false,
+    },
+    profilePicture: {
+      type: {
+        url: String,
+        public_id: String,
+      },
+      _id:false
     },
     isVerified: {
       type: Boolean,

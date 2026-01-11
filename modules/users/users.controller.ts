@@ -1,18 +1,17 @@
-import { authMiddleware } from "./../../middleware/auth.middleware";
+import { updateBasicInfo } from './validation/users.schema';
 import { Router } from "express";
-import { successResponse } from "../../utils/response/success.response";
-import { AuthRequest } from "../../public types/authentication/request.types";
-import { Response, Request } from "express";
+import * as UserService from "./users.service";
+import { cloudFileUpload } from "../../utils/multer/cloud.multer";
+import validateRequest from "../../middleware/requestValidation.middleware";
 
 export const usersRouter = Router();
 
-usersRouter.get(
-  "/my-profile",
-  authMiddleware,
-  (req: Request, res: Response) => {
-    const authRequest = req as AuthRequest;
-    return successResponse(res, {
-      data: authRequest.user,
-    });
-  }
+usersRouter.get("/my-profile", UserService.myProfile);
+
+usersRouter.patch(
+  "/upload-profile-picture",
+  cloudFileUpload().single("image"),
+  UserService.uploadProfilePicture
 );
+
+usersRouter.patch("/update-profile-info", validateRequest(updateBasicInfo), UserService.updateProfileInfo);
