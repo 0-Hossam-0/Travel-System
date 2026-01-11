@@ -3,7 +3,7 @@ import * as TourService from "./tour.service";
 import { successResponse } from "../../utils/response/success.response";
 import mongoose from "mongoose";
 import { AuthRequest } from "../../public types/authentication/request.types";
-import validateRequest from "../../middleware/requestValidation/requestValidation.middleware";
+import validateRequest from "../../middleware/requestValidation.middleware";
 import { createTourSchema } from "./types/createTour.schema";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import {

@@ -3,10 +3,6 @@ import { ITour } from "../../../schema/tour/tour.schema";
 import TOUR_VALIDATION_MESSAGES from "../../../utils/message/tour/tour.message";
 import TOUR_VALIDATION_LIMITS from "../../../utils/limit/tour/tour.limit";
 import REGEX_PATTERNS from "../../../utils/regex/regex";
-// import TOUR_VALIDATION_LIMITS from "../../../validation/tour/tour.config";
-// import REGEX_PATTERNS from "../../../validation/regex.config";
-// import TOUR_VALIDATION_MESSAGES from "../../../validation/tour/tour.validation";
-// import VALIDATION_MESSAGES from "../../../validation/message.validation";
 
 export interface ITourDocument extends ITour, Document {
   price_tiers?: Types.ObjectId[];
@@ -86,9 +82,8 @@ tourSchema.virtual("price_tiers", {
   foreignField: "tour_id",
 });
 
-// Virtual for Schedules
 tourSchema.virtual("schedules", {
-  ref: "Tour-Schedule", // The model name for schedules
+  ref: "Tour-Schedule",
   localField: "_id",
   foreignField: "tour_id",
 });

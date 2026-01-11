@@ -8,7 +8,7 @@ import {
 } from "./validation/hotel.validation";
 import { successResponse } from "../../utils/response/success.response";
 import { authMiddleware } from "../../middleware/auth.middleware";
-import validateRequest from "../../middleware/requestValidation/requestValidation.middleware";
+import validateRequest from "../../middleware/requestValidation.middleware";
 
 const hotelRouter = Router();
 

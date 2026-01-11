@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import * as CarService from "./car.service";
-import validateRequest from "../../middleware/requestValidation/requestValidation.middleware";
+import validateRequest from "../../middleware/requestValidation.middleware";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { successResponse } from "../../utils/response/success.response";
 import {
