@@ -6,8 +6,7 @@ import {
   UnAuthorizedException,
 } from "../response/error.response";
 import TokenType from "../../public types/authentication/token.types";
-import { IUser } from "../../schema/user/user.schema";
-import { AuthRequest } from "../../public types/authentication/request.types";
+
 
 const getTokenConfig = (tokenType: TokenType) => {
   return tokenType === TokenType.ACCESS

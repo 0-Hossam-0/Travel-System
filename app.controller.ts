@@ -1,3 +1,5 @@
+import { mainRoute } from "./middleware/main.route";
+import { usersRouter } from "./modules/users/users.controller";
 import express, { Application, Request, Response } from "express";
 import tourRouter from "./modules/tour/tour.controller";
 import { notFound } from "./middleware/notFound.middleware";
@@ -11,6 +13,7 @@ import cors from "cors";
 import helmet from "helmet";
 import connectDB from "./DB/connect";
 import cookieParser from "cookie-parser";
+import { authMiddleware } from "./middleware/auth.middleware";
 
 const bootstrap = (app: Application) => {
   const port = process.env.PORT || 300;
@@ -24,23 +27,23 @@ const bootstrap = (app: Application) => {
 
   app.use("/api/auth", authRouter);
 
+  app.use("/api/users", authMiddleware, usersRouter);
+
   app.use("/api/room", roomRouter);
 
   app.use("/api/hotel", hotelRouter);
 
   app.use("/api/booking", bookingRouter);
-  
+
   app.use("/api/car", carRouter);
 
   app.use("/api/tours", tourRouter);
 
+  app.get(["/", "/api"], mainRoute);
+
   app.use(notFound);
 
   app.use(globalErrorHandler);
-
-  app.get("/", (req: Request, res: Response) => {
-    res.send("Express + TypeScript Server is running!");
-  });
 
   app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
