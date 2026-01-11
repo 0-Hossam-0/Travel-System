@@ -2,7 +2,7 @@ import { Schema } from "mongoose";
 import BOOKING_VALIDATION_LIMITS from "../../../utils/limit/booking/booking.limit";
 import BOOKING_VALIDATION_MESSAGES from "../../../utils/message/booking/booking.message";
 import { BookingModel } from "./booking.model";
-import IHotelBooking from "../../../schema/booking/hotelBooking.schema";
+import { IHotelBooking } from "../../../schema/booking/hotelBooking.schema";
 
 const HotelBookingSchema = new Schema<IHotelBooking>({
   hotel: { type: Schema.Types.ObjectId, ref: "Hotel", required: true },
