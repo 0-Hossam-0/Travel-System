@@ -7,6 +7,7 @@ export const hotelBookingSchema = baseBookingSchema.extend({
   hotel: objectIdSchema,
   check_in_date: z.coerce.date(),
   check_out_date: z.coerce.date(),
+  nights: z.number().int().min(1, "Minimum 1 night required"),
   rooms: z
     .array(
       z.object({
@@ -19,6 +20,11 @@ export const hotelBookingSchema = baseBookingSchema.extend({
   guests: z.object({
     adults: z.number().int().min(1),
     children: z.number().int().min(0).default(0),
+  }),
+  rate_plan: z.object({
+    name: z.string(),
+    cancellation_policy: z.string(),
+    breakfast_included: z.boolean().default(false),
   }),
 });
 
