@@ -4,7 +4,7 @@ import {
   forgetPasswordConfirm,
   login,
 } from "./authentication.service";
-import validateRequest from "../../middleware/requestValidation/requestValidation.middleware";
+import validateRequest from "../../middleware/requestValidation.middleware";
 import {
   resetPasswordRequestSchema,
   resetPasswordConfirmSchema,

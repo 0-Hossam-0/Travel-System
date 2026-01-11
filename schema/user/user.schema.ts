@@ -1,6 +1,6 @@
 import { z } from "zod";
-import USER_VALIDATION_REGEX from "../../validation/user/user.config";
-import USER_VALIDATION_MESSAGES from "../../validation/user/user.validation";
+import USER_VALIDATION_MESSAGES from "../../utils/message/user/user.message";
+import USER_VALIDATION_REGEX from "../../utils/limit/user/user.limit";
 
 const otpCount = process.env.OTP_DIGIT_COUNTER || 4;
 
@@ -8,7 +8,7 @@ export const userSchema = z.object({
   name: z
     .string({ message: USER_VALIDATION_MESSAGES.NAME_REQUIRED })
     .trim()
-    .regex(USER_VALIDATION_REGEX.USERNAME, {
+    .regex(USER_VALIDATION_REGEX .USERNAME, {
       message: USER_VALIDATION_MESSAGES.INVALID_USERNAME,
     }),
 

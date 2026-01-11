@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { BadRequestException } from "../../utils/response/error.response";
 import { ZodObject, ZodSchema } from "zod";
+import { BadRequestException } from "../utils/response/error.response";
 
 const validateRequest = (schema: ZodSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {

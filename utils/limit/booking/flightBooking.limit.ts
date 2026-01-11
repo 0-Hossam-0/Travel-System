@@ -1,0 +1,10 @@
+const FLIGHT_BOOKING_LIMITS = {
+  PASSENGER: {
+    NAME_MIN: 1,
+    NAME_MAX: 50,
+  },
+  AIRPORT_CODE: 3,
+  MIN_PASSENGERS: 1,
+} as const;
+
+export default FLIGHT_BOOKING_LIMITS;

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import * as RoomService from "../room/room.service";
 import { IRoom, roomSchema } from "../../schema/room/room.schema";
-import validateRequest from "../../middleware/requestValidation/requestValidation.middleware";
+import validateRequest from "../../middleware/requestValidation.middleware";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { successResponse } from "../../utils/response/success.response";
 import {
