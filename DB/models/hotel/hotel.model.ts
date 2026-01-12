@@ -3,7 +3,7 @@ import { IHotel } from "../../../schema/hotel/hotel.schema";
 import { HOTEL_VALIDATION_LIMITS } from "../../../utils/limit/hotel/hotel.limit";
 import { HOTEL_VALIDATION_MESSAGES } from "../../../utils/message/hotel/hotel.message";
 
-export interface IHotelDocument extends IHotel, Document {}
+export interface IHotelDocument extends IHotel, Document { }
 
 const hotelSchema = new Schema<IHotelDocument>(
   {
@@ -26,6 +26,17 @@ const hotelSchema = new Schema<IHotelDocument>(
       index: true,
       trim: true,
     },
+    location_coordinates: {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point']
+      },
+      coordinates: {
+        type: [Number],
+        index: '2dsphere'
+      },
+    },
     address: {
       type: String,
       required: [true, HOTEL_VALIDATION_MESSAGES.ADDRESS_REQUIRED],
@@ -39,6 +50,7 @@ const hotelSchema = new Schema<IHotelDocument>(
         HOTEL_VALIDATION_MESSAGES.ADDRESS_MAX,
       ],
     },
+
     main_image: {
       type: String,
       required: [true, HOTEL_VALIDATION_MESSAGES.IMAGE_REQUIRED],
@@ -75,5 +87,8 @@ const hotelSchema = new Schema<IHotelDocument>(
     timestamps: true,
   }
 );
+
+
+hotelSchema.index({ location_coordinates: "2dsphere" });
 
 export const HotelModel = mongoose.model<IHotelDocument>("Hotel", hotelSchema);
