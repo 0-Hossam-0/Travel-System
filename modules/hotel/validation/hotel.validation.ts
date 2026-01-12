@@ -26,8 +26,41 @@ export const GetHotelByIdValidation = z.object({
   }),
 });
 
+
 export const DeleteHotelByIdValidation = z.object({
   params: z.object({
     id: objectIdSchema,
   }),
+});
+
+export const GetHotelMapValidation = z.object({
+  query: z.object({
+    lat: z.coerce
+      .number()
+      .min(-90, "Latitude must be between -90 and 90")
+      .max(90, "Latitude must be between -90 and 90")
+      .optional(),
+    lng: z.coerce
+      .number()
+      .min(-180, "Longitude must be between -180 and 180")
+      .max(180, "Longitude must be between -180 and 180")
+      .optional(),
+    distance: z.coerce.number().positive().optional(),
+    searchTerm: z.string().optional(),
+    page: z.coerce.number().min(1).optional(),
+    limit: z.coerce.number().min(1).max(50).optional(),
+  })
+    .refine(
+      (data) => {
+
+        if ((data.lat && !data.lng) || (!data.lat && data.lng)) {
+          return false;
+        }
+        return true;
+      },
+
+      {
+        message: "Both latitude and longitude must be provided together",
+      }
+    ),
 });

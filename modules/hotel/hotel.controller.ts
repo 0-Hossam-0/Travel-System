@@ -82,6 +82,7 @@ import {
   CreateHotelValidation,
   DeleteHotelByIdValidation,
   GetHotelByIdValidation,
+  GetHotelMapValidation,
   UpdateHotelByIdValidation,
 } from "./validation/hotel.validation";
 import { successResponse } from "../../utils/response/success.response";
@@ -168,6 +169,17 @@ hotelRouter.get("/hotel/:id",
 
 hotelRouter.get("/",authMiddleware, async (req: Request, res: Response) => {
   const result = await HotelService.getAllHotels(req.query);
+
+  successResponse(res, {
+    statusCode: 200,
+    message: "Hotels fetched successfully",
+    info: result.meta,
+    data: result.hotels,
+  });
+});
+
+hotelRouter.get("/map",authMiddleware, validateRequest(GetHotelMapValidation), async (req: Request, res: Response) => {
+  const result = await HotelService.getAllHotelsInMap(req.query);
 
   successResponse(res, {
     statusCode: 200,
