@@ -1,4 +1,7 @@
-import { ApplicationException, BadRequestException } from "./../../utils/response/error.response";
+import {
+  ApplicationException,
+  BadRequestException,
+} from "./../../utils/response/error.response";
 import { successResponse } from "./../../utils/response/success.response";
 import { Request, Response } from "express";
 import { AuthRequest } from "./../../public types/authentication/request.types";
@@ -6,19 +9,35 @@ import { uploadToCloudinary } from "../../utils/cloudinary/cloudinary.upload";
 import { deleteImageFromCloudinary } from "../../utils/cloudinary/cloudinary.delete";
 import UserModel from "../../DB/models/user/user.model";
 import { IUser } from "../../schema/user/user.schema";
+import * as BookingService from "../booking/booking.service";
 
 export const myProfile = async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
+  const userId = authReq.user._id.toString();
+  const { page, limit, status } = req.query;
+
+  const { bookings, meta } = await BookingService.getUserBookings(userId, {
+    page: page ? Number(page) : undefined,
+    limit: limit ? Number(limit) : undefined,
+    status: status as string,
+  });
+
 
   return successResponse(res, {
-    data: { userData: authReq.user },
+    data: {
+      userData: authReq.user,
+       bookings,
+       meta,
+    },
   });
 };
+
+
 
 export const uploadProfilePicture = async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
 
-  if(!req.file){
+  if (!req.file) {
     throw new BadRequestException("No Attachment Uploaded !");
   }
 
@@ -74,7 +93,6 @@ export const updateProfileInfo = async (req: Request, res: Response) => {
 
   const keys: (keyof IUser)[] = ["name", "address", "phone"];
 
-
   keys.forEach((key) => {
     if (data[key] !== undefined && data[key] === authReq.user![key]) {
       duplicatedIssues.push({
@@ -97,7 +115,9 @@ export const updateProfileInfo = async (req: Request, res: Response) => {
       _id: { $ne: authReq.user._id },
     })
   ) {
-    throw new BadRequestException("This phone number is already in use by another user.");
+    throw new BadRequestException(
+      "This phone number is already in use by another user."
+    );
   }
 
   const updated = await UserModel.updateOne(
