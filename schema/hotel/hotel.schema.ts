@@ -2,6 +2,25 @@ import { z } from "zod";
 import { HOTEL_VALIDATION_LIMITS } from "../../utils/limit/hotel/hotel.limit";
 import { HOTEL_VALIDATION_MESSAGES } from "../../utils/message/hotel/hotel.message";
 
+
+const locationCoordinatesSchema = z.object({
+  type: z.literal("Point").default("Point"),
+  coordinates: z
+    .tuple([
+      z.number(), // longitude
+      z.number(), // latitude
+    ])
+    .refine(
+      ([lng, lat]) =>
+        lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90,
+      {
+        message: HOTEL_VALIDATION_MESSAGES.INVALID_COORDINATES,
+      }
+    ),
+});
+
+
+
 export const hotelSchema = z.object({
   name: z
     .string({ message: HOTEL_VALIDATION_MESSAGES.NAME_REQUIRED })
@@ -46,6 +65,12 @@ export const hotelSchema = z.object({
       HOTEL_VALIDATION_MESSAGES.INVALID_RATING
     )
     .default(0),
+
+
+  location_coordinates: locationCoordinatesSchema,
+
+
+
   isDeleted: z.boolean().default(false),
 });
 

@@ -7,13 +7,36 @@ import {
 } from "../../utils/response/error.response";
 
 const createHotel = async (payload: IHotel) => {
+
+  const conflicts: { path: string, message: string }[] = []
+
   const existingHotel = await HotelModel.findOne({
     name: payload.name,
     isDeleted: false,
   });
 
   if (existingHotel)
-    throw new ConflictException("Hotel with the same name already exists!");
+    conflicts.push({ path: "name", message: "Hotel with the same name already exists!" })
+
+
+  const existingLocation = await HotelModel.findOne({
+    location_coordinates: payload.location_coordinates,
+    isDeleted: false,
+  });
+
+  if (existingLocation)
+    conflicts.push({ path: "location_coordinates", message: "Hotel with the same location already exists!" })
+
+  const existingAddress = await HotelModel.findOne({
+    address: payload.address,
+    isDeleted: false,
+  });
+
+  if (existingAddress)
+    conflicts.push({ path: "address", message: "Hotel with the same address already exists!" })
+
+  if (conflicts.length)
+    throw new ConflictException("Conflicts found!", conflicts);
 
   const result = await HotelModel.create(payload);
   return result;
@@ -93,4 +116,69 @@ const deleteHotel = async (id: string) => {
   return result;
 };
 
-export { createHotel, getAllHotels, getSingleHotel, updateHotel, deleteHotel };
+const getAllHotelsInMap = async (query: Record<string, any>) => {
+  const { searchTerm, lat, lng, distance, page = 1, limit = 10 } = query;
+
+  const filter: Record<string, any> = { isDeleted: false };
+  const countFilter: Record<string, any> = { isDeleted: false };
+
+  // عشان لو بيسيرش بالإسم او بالعنوان
+  if (searchTerm) {
+    const searchRegex = { $regex: searchTerm, $options: "i" };
+    const searchCondition = {
+      $or: [{ name: searchRegex }, { location: searchRegex }]
+    };
+    Object.assign(filter, searchCondition);
+    Object.assign(countFilter, searchCondition);
+  }
+
+  // عشان لو بيسيرش بالموقع
+  if (lat && lng) {
+    const userLat = Number(lat);
+    const userLng = Number(lng);
+    const maxDist = Number(distance) || 5000;
+
+    filter.location_coordinates = {
+      // بترجع مترتبة حسب الأقرب
+      $near: {
+        $geometry: { type: "Point", coordinates: [userLng, userLat] },
+        $maxDistance: maxDist
+      }
+    };
+
+
+    countFilter.location_coordinates = {
+      $geoWithin: {
+        $centerSphere: [[userLng, userLat], maxDist / 6378100]
+      }
+    };
+
+  }
+
+  const skip = (Number(page) - 1) * Number(limit);
+
+  const queryBuild = HotelModel.find(filter).skip(skip).limit(Number(limit));
+
+  // لو مفيش احداثيات بترجع حسب الاحدث
+  if (!lat || !lng) {
+    queryBuild.sort("-createdAt");
+  }
+
+  const [hotels, total] = await Promise.all([
+    queryBuild,
+    HotelModel.countDocuments(countFilter)
+  ]);
+
+
+  return {
+    meta: {
+      page: Number(page),
+      limit: Number(limit),
+      total,
+      totalPage: Math.ceil(total / Number(limit)),
+    },
+    hotels,
+  };
+};
+
+export { createHotel, getAllHotels, getSingleHotel, updateHotel, deleteHotel, getAllHotelsInMap };
