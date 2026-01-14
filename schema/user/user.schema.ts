@@ -6,8 +6,6 @@ import { Types } from "mongoose";
 const otpCount = process.env.OTP_DIGIT_COUNTER || 4;
 
 export const userSchema = z.object({
-
-
   name: z
     .string({ message: USER_VALIDATION_MESSAGES.NAME_REQUIRED })
     .trim()
@@ -34,9 +32,9 @@ export const userSchema = z.object({
     public_id: z.string(),
   }),
 
-  phone:z.string().regex(USER_VALIDATION_REGEX.PHONE_NUMBER),
+  phone: z.string().regex(USER_VALIDATION_REGEX.PHONE_NUMBER),
 
-  address:z.string().min(10).max(255),
+  address: z.string().min(10).max(255),
 
   isVerified: z.boolean().default(false),
 
@@ -55,4 +53,3 @@ export const otpSchema = z.object({
 export type IUser = z.infer<typeof userSchema> & {
   _id: Types.ObjectId;
 };
-

@@ -157,7 +157,7 @@ export const login = async (req: LoginRequest, res: Response) => {
 export const refreshToken = async (req: Request, res: Response) => {
   const { refresh_token } = req.cookies;
 
-  if (!refresh_token) 
+  if (!refresh_token)
     throw new UnAuthorizedException("Refresh Token Not Found");
 
   const { user } = await verifyToken(refresh_token, TokenType.REFRESH);

@@ -9,6 +9,7 @@ import roomRouter from "./modules/room/room.controller";
 import hotelRouter from "./modules/hotel/hotel.controller";
 import carRouter from "./modules/car/car.controller";
 import bookingRouter from "./modules/booking/booking.controller";
+import favoriteRouter from "./modules/favorite/favorite.controller";
 import cors from "cors";
 import helmet from "helmet";
 import connectDB from "./DB/connect";
@@ -38,6 +39,8 @@ const bootstrap = (app: Application) => {
   app.use("/api/car", carRouter);
 
   app.use("/api/tours", tourRouter);
+
+  app.use("/api/favorite", favoriteRouter);
 
   app.get(["/", "/api"], mainRoute);
 

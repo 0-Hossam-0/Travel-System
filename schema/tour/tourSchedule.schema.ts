@@ -1,8 +1,10 @@
 import { z } from "zod";
-import VALIDATION_MESSAGES from "../../validation/message.validation";
-import TOUR_SCHEDULE_VALIDATION_MESSAGES from "../../validation/tour/tourSchedule.validation";
-import REGEX_PATTERNS from "../../validation/regex.config";
+// import VALIDATION_MESSAGES from "../../validation/message.validation";
+// import TOUR_SCHEDULE_VALIDATION_MESSAGES from "../../validation/tour/tourSchedule.validation";
 import { Types } from "mongoose";
+import REGEX_PATTERNS from "../../utils/regex/regex";
+import VALIDATION_MESSAGES from "../../utils/message/message.message";
+import TOUR_SCHEDULE_VALIDATION_MESSAGES from "../../utils/message/tour/tourSchedule.message";
 
 const objectIdSchema = (fieldName: string) =>
   z
