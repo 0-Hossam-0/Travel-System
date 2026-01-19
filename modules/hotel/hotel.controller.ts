@@ -10,6 +10,7 @@ import {
 import { successResponse } from "../../utils/response/success.response";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import validateRequest from "../../middleware/requestValidation.middleware";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const hotelRouter = Router();
 
@@ -17,7 +18,7 @@ hotelRouter.post(
   "/",
   authMiddleware,
   validateRequest(CreateHotelValidation),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const result = await HotelService.createHotel(req.body);
 
     successResponse(res, {
@@ -25,14 +26,14 @@ hotelRouter.post(
       message: "Hotel created successfully",
       data: result,
     });
-  }
+  })
 );
 
 hotelRouter.patch(
   "/:id",
   authMiddleware,
   validateRequest(UpdateHotelByIdValidation),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await HotelService.updateHotel(id, req.body);
 
@@ -41,14 +42,14 @@ hotelRouter.patch(
       message: "Hotel updated successfully",
       data: result,
     });
-  }
+  })
 );
 
 hotelRouter.delete(
   "/:id",
   authMiddleware,
   validateRequest(DeleteHotelByIdValidation),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     await HotelService.deleteHotel(id);
 
@@ -56,13 +57,13 @@ hotelRouter.delete(
       statusCode: 200,
       message: "Hotel deleted successfully",
     });
-  }
+  })
 );
 hotelRouter.get(
   "/rooms/:hotelId",
   authMiddleware,
   validateRequest(GetHotelByIdValidation),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { hotelId } = req.params;
     const result = await HotelService.getRoomsByHotel(hotelId);
 
@@ -71,13 +72,13 @@ hotelRouter.get(
       message: "Hotel rooms retrieved successfully",
       data: result,
     });
-  }
+  })
 );
 
 hotelRouter.get("/hotel/:id",
   authMiddleware,
   validateRequest(GetHotelByIdValidation),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await HotelService.getSingleHotel(id);
 
@@ -86,10 +87,10 @@ hotelRouter.get("/hotel/:id",
       message: "Hotel retrieved successfully",
       data: result,
     });
-  }
+  })
 );
 
-hotelRouter.get("/",authMiddleware, async (req: Request, res: Response) => {
+hotelRouter.get("/",authMiddleware, asyncHandler(async (req: Request, res: Response) => {
   const result = await HotelService.getAllHotels(req.query);
 
   successResponse(res, {
@@ -98,9 +99,9 @@ hotelRouter.get("/",authMiddleware, async (req: Request, res: Response) => {
     info: result.meta,
     data: result.hotels,
   });
-});
+}));
 
-hotelRouter.get("/map",authMiddleware, validateRequest(GetHotelMapValidation), async (req: Request, res: Response) => {
+hotelRouter.get("/map",authMiddleware, validateRequest(GetHotelMapValidation), asyncHandler(async (req: Request, res: Response) => {
   const result = await HotelService.getAllHotelsInMap(req.query);
 
   successResponse(res, {
@@ -109,6 +110,6 @@ hotelRouter.get("/map",authMiddleware, validateRequest(GetHotelMapValidation), a
     info: result.meta,
     data: result.hotels,
   });
-});
+}));
 
 export default hotelRouter;

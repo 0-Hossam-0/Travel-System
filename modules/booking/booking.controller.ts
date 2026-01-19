@@ -13,6 +13,7 @@ import { z } from "zod";
 import { objectIdSchema } from "../../schema/booking/booking.schema";
 import TOUR_BOOKING_LIMITS from "../../utils/limit/booking/tourBooking.limit";
 import TOUR_BOOKING_MESSAGES from "../../utils/message/booking/tourBooking.message";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const router = Router();
 
@@ -71,7 +72,7 @@ router.post(
   "/tour",
   authMiddleware,
   validateRequest(createTourBookingRequestSchema),
-  async (req: Request, res: Response, next: NextFunction) => {
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const authReq = req as AuthRequest;
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -95,11 +96,11 @@ router.post(
       });
     } catch (error) {
       await session.abortTransaction();
-      next(error);
+      throw error;
     } finally {
       session.endSession();
     }
-  }
+  })
 );
 
 /**
@@ -109,7 +110,7 @@ router.post(
   "/:id/payment",
   authMiddleware,
   validateRequest(bookingIdParamSchema),
-  async (req: Request, res: Response, next: NextFunction) => {
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const authReq = req as AuthRequest;
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -141,11 +142,11 @@ router.post(
       });
     } catch (error) {
       await session.abortTransaction();
-      next(error);
+      throw error;
     } finally {
       session.endSession();
     }
-  }
+  })
 );
 
 /**
@@ -155,18 +156,14 @@ router.get(
   "/:id",
   authMiddleware,
   validateRequest(bookingIdParamSchema),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const booking = await BookingService.getBookingById(req.params.id);
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const booking = await BookingService.getBookingById(req.params.id);
 
-      successResponse(res, {
-        data: booking,
-        message: "Booking retrieved successfully",
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+    successResponse(res, {
+      data: booking,
+      message: "Booking retrieved successfully",
+    });
+  })
 );
 
 /**
@@ -176,28 +173,24 @@ router.get(
   "/",
   authMiddleware,
   validateRequest(getBookingsQuerySchema),
-  async (req: Request, res: Response, next: NextFunction) => {
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const authReq = req as AuthRequest;
 
-    try {
-      const { bookings, meta } = await BookingService.getUserBookings(
-        authReq.user._id.toString(),
-        {
-          page: req.query.page ? Number(req.query.page) : undefined,
-          limit: req.query.limit ? Number(req.query.limit) : undefined,
-          status: req.query.status as string | undefined,
-        }
-      );
+    const { bookings, meta } = await BookingService.getUserBookings(
+      authReq.user._id.toString(),
+      {
+        page: req.query.page ? Number(req.query.page) : undefined,
+        limit: req.query.limit ? Number(req.query.limit) : undefined,
+        status: req.query.status as string | undefined,
+      }
+    );
 
-      successResponse(res, {
-        data: bookings,
-        message: "Bookings retrieved successfully",
-        info: meta,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+    successResponse(res, {
+      data: bookings,
+      message: "Bookings retrieved successfully",
+      info: meta,
+    });
+  })
 );
 
 /**
@@ -207,7 +200,7 @@ router.delete(
   "/:id",
   authMiddleware,
   validateRequest(bookingIdParamSchema),
-  async (req: Request, res: Response, next: NextFunction) => {
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const authReq = req as AuthRequest;
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -227,11 +220,11 @@ router.delete(
       });
     } catch (error) {
       await session.abortTransaction();
-      next(error);
+      throw error;
     } finally {
       session.endSession();
     }
-  }
+  })
 );
 
 /**
@@ -251,7 +244,7 @@ router.patch(
       }),
     })
   ),
-  async (req: Request, res: Response, next: NextFunction) => {
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -271,11 +264,11 @@ router.patch(
       });
     } catch (error) {
       await session.abortTransaction();
-      next(error);
+      throw error;
     } finally {
       session.endSession();
     }
-  }
+  })
 );
 
 export default router;

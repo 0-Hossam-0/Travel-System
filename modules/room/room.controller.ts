@@ -11,6 +11,7 @@ import {
   UpdateRoomByIdValidation,
   GetRoomByIdValidation,
 } from "./validation/room.validation";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const roomRouter = Router();
 
@@ -18,7 +19,7 @@ roomRouter.post(
   "/",
   authMiddleware,
   validateRequest(CreateRoomValidation),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const roomData = req.body as IRoom;
     const result = await RoomService.createRoom(roomData);
 
@@ -27,7 +28,7 @@ roomRouter.post(
       message: "Room created successfully",
       data: result,
     });
-  }
+  })
 );
 
 
@@ -35,7 +36,7 @@ roomRouter.patch(
   "/:id",
   authMiddleware,
   validateRequest(UpdateRoomByIdValidation),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const result = await RoomService.updateRoom(id, req.body);
@@ -45,13 +46,13 @@ roomRouter.patch(
       message: "Room updated successfully",
       data: result,
     });
-  }
+  })
 );
 
 roomRouter.get(
   "/single/:id",
   validateRequest(GetRoomByIdValidation),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await RoomService.getSingleRoom(id);
 
@@ -60,14 +61,14 @@ roomRouter.get(
       message: "Room retrieved successfully",
       data: result,
     });
-  }
+  })
 );
 
 roomRouter.delete(
   "/:id",
   authMiddleware,
   validateRequest(DeleteRoomByIdValidation),
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
     await RoomService.deleteRoom(id);
@@ -76,7 +77,7 @@ roomRouter.delete(
       statusCode: 200,
       message: "Room deleted successfully",
     });
-  }
+  })
 );
 
 export default roomRouter;

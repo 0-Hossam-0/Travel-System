@@ -13,6 +13,7 @@ import {
 import { NotFoundException } from "../../utils/response/error.response";
 import { updateTourSchema } from "./types/updateTour.schema";
 import { deleteTourSchema } from "./types/deleteTour.schema";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const router = Router();
 
@@ -20,7 +21,7 @@ router.post(
   "/",
   authMiddleware,
   validateRequest(createTourSchema),
-  async (req: Request, res: Response, next: NextFunction) => {
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const authReq = req as AuthRequest;
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -36,18 +37,18 @@ router.post(
       successResponse(res, { data: newTour, statusCode: 201 });
     } catch (error) {
       await session.abortTransaction();
-      next(error);
+      throw error;
     } finally {
       session.endSession();
     }
-  }
+  })
 );
 
 router.get(
   "/",
   authMiddleware,
   validateRequest(getToursRequestSchema),
-  async (req: Request, res: Response, next: NextFunction) => {
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const tourRequest = req as IGetToursRequest;
     const { tours, meta } = await TourService.getToursPagination(
       tourRequest.query
@@ -57,40 +58,40 @@ router.get(
       message: "Tours retrieved successfully",
       info: meta,
     });
-  }
+  })
 );
 
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id", asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const tour = await TourService.getTourById(req.params.id);
-  if (!tour) return new NotFoundException("Tour not found");
+  if (!tour) throw new NotFoundException("Tour not found");
 
   return successResponse(res, {
     message: "Tour retrieved successfully",
     data: tour,
   });
-});
+}));
 
 router.patch(
   "/:id",
   authMiddleware,
   validateRequest(updateTourSchema),
-  async (req: Request, res: Response, next: NextFunction) => {
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const tour = await TourService.updateTour(req.params.id, req.body);
 
-    if (!tour) return new NotFoundException("Tour not found");
+    if (!tour) throw new NotFoundException("Tour not found");
 
     return successResponse(res, {
       message: "Tour updated successfully",
       data: tour,
     });
-  }
+  })
 );
 
 router.delete(
   "/:id",
   authMiddleware,
   validateRequest(deleteTourSchema),
-  async (req: Request, res: Response, next: NextFunction) => {
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -106,11 +107,11 @@ router.delete(
       });
     } catch (error) {
       await session.abortTransaction();
-      next(error);
+      throw error;
     } finally {
       session.endSession();
     }
-  }
+  })
 );
 
 export default router;

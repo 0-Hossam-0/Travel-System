@@ -12,25 +12,26 @@ import {
   SignupSchema,
 } from "./types/authentication.schema";
 import { registerUser, refreshToken } from "./authentication.service";
+import { asyncHandler } from "../../utils/asyncHandler";
 
 const authRouter = Router();
 
 authRouter.post(
   "/forgot-password/request",
   validateRequest(resetPasswordRequestSchema),
-  forgetPasswordRequest
+  asyncHandler(forgetPasswordRequest)
 );
 
 authRouter.post(
   "/forgot-password/confirm/:token",
   validateRequest(resetPasswordConfirmSchema),
-  forgetPasswordConfirm
+  asyncHandler(forgetPasswordConfirm)
 );
 
-authRouter.post("/signup", validateRequest(SignupSchema), registerUser);
+authRouter.post("/signup", validateRequest(SignupSchema), asyncHandler(registerUser));
 
-authRouter.post("/login", validateRequest(LoginSchema), login);
+authRouter.post("/login", validateRequest(LoginSchema), asyncHandler(login));
 
-authRouter.get("/refresh", refreshToken);
+authRouter.get("/refresh", asyncHandler(refreshToken));
 
 export default authRouter;

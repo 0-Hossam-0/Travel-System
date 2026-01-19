@@ -1,6 +1,8 @@
+import { Request, Response } from "express";
 import { CarModel } from "../../DB/models/car/car.model";
 import { ICar } from "../../schema/car/car.schema";
 import { ConflictException, NotFoundException } from "../../utils/response/error.response";
+import { successResponse } from "../../utils/response/success.response";
 
 const createCar = async (payload: ICar) => {
   const result = await CarModel.create(payload);
@@ -67,10 +69,78 @@ const deleteCar = async (id: string) => {
   return result;
 };
 
+/**
+ * Controller Service: Create Car
+ */
+const createCarController = async (req: Request, res: Response) => {
+  const result = await createCar(req.body);
+  successResponse(res, {
+    statusCode: 201,
+    message: "Car created successfully",
+    data: result,
+  });
+};
+
+/**
+ * Controller Service: Update Car
+ */
+const updateCarController = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await updateCar(id, req.body);
+  successResponse(res, {
+    statusCode: 200,
+    message: "Car updated successfully",
+    data: result,
+  });
+};
+
+/**
+ * Controller Service: Delete Car
+ */
+const deleteCarController = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  await deleteCar(id);
+  successResponse(res, {
+    statusCode: 200,
+    message: "Car deleted successfully",
+  });
+};
+
+/**
+ * Controller Service: Get Single Car
+ */
+const getSingleCarController = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await getSingleCar(id);
+  successResponse(res, {
+    statusCode: 200,
+    message: "Car retrieved successfully",
+    data: result,
+  });
+};
+
+/**
+ * Controller Service: Get All Cars
+ */
+const getAllCarsController = async (req: Request, res: Response) => {
+  const result = await getAllCars(req.query);
+  successResponse(res, {
+    statusCode: 200,
+    message: "Cars fetched successfully",
+    info: result.meta,
+    data: result.cars,
+  });
+};
+
 export {
   createCar,
   getAllCars,
   getSingleCar,
   updateCar,
   deleteCar,
+  createCarController,
+  updateCarController,
+  deleteCarController,
+  getSingleCarController,
+  getAllCarsController,
 };
