@@ -1,7 +1,8 @@
 import { mainRoute } from "./middleware/main.route";
 import { usersRouter } from "./modules/users/users.controller";
-import express, { Application, Request, Response } from "express";
+import express, { Application } from "express";
 import tourRouter from "./modules/tour/tour.controller";
+import flightRouter from "./modules/flight/flight.controller";
 import { notFound } from "./middleware/notFound.middleware";
 import { globalErrorHandler } from "./utils/response/error.response";
 import authRouter from "./modules/authentication/authentication.controller";
@@ -16,7 +17,7 @@ import cookieParser from "cookie-parser";
 import { authMiddleware } from "./middleware/auth.middleware";
 
 const bootstrap = (app: Application) => {
-  const port = process.env.PORT || 300;
+  const port = process.env.PORT || 3000;
 
   connectDB();
 
@@ -38,6 +39,8 @@ const bootstrap = (app: Application) => {
   app.use("/api/car", carRouter);
 
   app.use("/api/tours", tourRouter);
+
+  app.use("/api/flight", flightRouter);
 
   app.get(["/", "/api"], mainRoute);
 

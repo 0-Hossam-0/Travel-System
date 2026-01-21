@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction, Router } from "express";
+
+import { Request, Response, Router } from "express";
 import * as HotelService from "./hotel.service";
 import {
   CreateHotelValidation,
