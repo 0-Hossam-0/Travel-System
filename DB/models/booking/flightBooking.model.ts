@@ -1,96 +1,87 @@
-import { Schema } from "mongoose";
-import { BookingModel } from "./booking.model";
-import { IFlightBooking } from "../../../schema/booking/flightBooking.schema";
-import FLIGHT_BOOKING_MESSAGES from "../../../utils/message/booking/flightBooking.message";
-import FLIGHT_BOOKING_LIMITS from "../../../utils/limit/booking/flightBooking.limit";
+import { Schema, Types, model, Document } from "mongoose";
 
-const FlightBookingSchema = new Schema<IFlightBooking>({
-  trip_type: {
-    type: String,
-    required: [true, FLIGHT_BOOKING_MESSAGES.TRIP_TYPE_REQUIRED],
-    enum: {
-      values: ["one-way", "round-trip", "multi-city"],
-      message: FLIGHT_BOOKING_MESSAGES.TRIP_TYPE_REQUIRED,
+export interface IPassenger {
+  fullName: string;
+  passportNumber: string;
+  nationality?: string;
+  dateOfBirth?: Date;
+}
+
+export type BookingStatus =
+  | "INIT"
+  | "PENDING_PAYMENT"
+  | "CONFIRMED"
+  | "PAYMENT_FAILED"
+  | "EXPIRED"
+  | "CANCELLED";
+
+export interface IBooking extends Document {
+  flightId: Types.ObjectId;
+
+  passengers: IPassenger[];
+
+  seatIds: Types.ObjectId[]; 
+
+  totalPrice: number;
+  currency: string;
+
+  status: BookingStatus;
+
+  expiresAt?: Date; 
+}
+
+const FlightBookingSchema = new Schema<IBooking>({
+  flightId: {
+    type: Schema.Types.ObjectId,
+    ref: "Flight",
+    required: true,
+    index: true,
+  },
+
+  passengers: [
+    {
+      fullName: { type: String, required: true },
+      passportNumber: { type: String, required: true },
+      nationality: String,
+      dateOfBirth: Date,
     },
+  ],
+
+  seatIds: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Seat",
+    },
+  ],
+
+  totalPrice: {
+    type: Number,
+    required: true,
   },
-  flight_segments: {
-    type: [
-      {
-        flight_id: { type: String, required: true },
-        airline: { type: String, required: true },
-        flight_number: { type: String, required: true },
-        departure_airport: {
-          type: String,
-          required: true,
-          uppercase: true,
-          minlength: FLIGHT_BOOKING_LIMITS.AIRPORT_CODE,
-          maxlength: FLIGHT_BOOKING_LIMITS.AIRPORT_CODE,
-        },
-        arrival_airport: {
-          type: String,
-          required: true,
-          uppercase: true,
-          minlength: FLIGHT_BOOKING_LIMITS.AIRPORT_CODE,
-          maxlength: FLIGHT_BOOKING_LIMITS.AIRPORT_CODE,
-        },
-        departure_time: { type: Date, required: true },
-        arrival_time: { type: Date, required: true },
-        cabin_class: {
-          type: String,
-          required: true,
-          enum: {
-            values: ["economy", "business", "first"],
-            message: FLIGHT_BOOKING_MESSAGES.CABIN_CLASS_INVALID,
-          },
-        },
-      },
-    ],
-    validate: [
-      (val: any) => val.length >= FLIGHT_BOOKING_LIMITS.MIN_PASSENGERS,
-      FLIGHT_BOOKING_MESSAGES.SEGMENTS_REQUIRED,
-    ],
+
+  currency: {
+    type: String,
+    default: "USD",
   },
-  passengers: {
-    type: [
-      {
-        title: {
-          type: String,
-          required: true,
-          enum: {
-            values: ["Mr", "Mrs", "Ms", "Miss", "Dr"],
-            message: FLIGHT_BOOKING_MESSAGES.TITLE_INVALID,
-          },
-        },
-        first_name: {
-          type: String,
-          required: [true, FLIGHT_BOOKING_MESSAGES.FIRST_NAME_REQUIRED],
-          trim: true,
-        },
-        last_name: {
-          type: String,
-          required: [true, FLIGHT_BOOKING_MESSAGES.LAST_NAME_REQUIRED],
-          trim: true,
-        },
-        date_of_birth: {
-          type: Date,
-          required: [true, FLIGHT_BOOKING_MESSAGES.DOB_REQUIRED],
-        },
-        passport_number: { type: String, trim: true },
-        special_requests: { type: String },
-        seat_selection: { type: String },
-        ticket_number: { type: String },
-      },
+
+  status: {
+    type: String,
+    enum: [
+      "INIT",
+      "PENDING_PAYMENT",
+      "CONFIRMED",
+      "PAYMENT_FAILED",
+      "EXPIRED",
+      "CANCELLED",
     ],
-    validate: [
-      (val: any) => val.length >= FLIGHT_BOOKING_LIMITS.MIN_PASSENGERS,
-      FLIGHT_BOOKING_MESSAGES.PASSENGERS_REQUIRED,
-    ],
+    default: "INIT",
+    index: true,
+  },
+
+  expiresAt: {
+    type: Date,
+    index: true,
   },
 });
 
-const FlightBookingModel = BookingModel.discriminator(
-  "flight",
-  FlightBookingSchema
-);
-
-export default FlightBookingModel;
+export const FlightBookingModel = model<IBooking>("FlightBooking", FlightBookingSchema);
