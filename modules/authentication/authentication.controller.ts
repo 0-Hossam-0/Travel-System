@@ -1,32 +1,36 @@
 import { Router } from "express";
 import {
-  resetPasswordRequest,
-  resetPasswordConfirm,
+  forgetPasswordRequest,
+  forgetPasswordConfirm,
   login,
 } from "./authentication.service";
-import { validateRequest } from "../../middleware/requestValidation.middleware";
+import validateRequest from "../../middleware/requestValidation.middleware";
 import {
   resetPasswordRequestSchema,
   resetPasswordConfirmSchema,
   LoginSchema,
-} from "./types/zod.types";
-import { registerUser } from "./authentication.service";
+  SignupSchema,
+} from "./types/authentication.schema";
+import { registerUser, refreshToken } from "./authentication.service";
 
 const authRouter = Router();
 
 authRouter.post(
   "/forgot-password/request",
   validateRequest(resetPasswordRequestSchema),
-  resetPasswordRequest
+  forgetPasswordRequest
 );
 
 authRouter.post(
   "/forgot-password/confirm/:token",
   validateRequest(resetPasswordConfirmSchema),
-  resetPasswordConfirm
+  forgetPasswordConfirm
 );
 
-authRouter.post("/signup", registerUser);
+authRouter.post("/signup", validateRequest(SignupSchema), registerUser);
 
 authRouter.post("/login", validateRequest(LoginSchema), login);
+
+authRouter.get("/refresh", refreshToken);
+
 export default authRouter;

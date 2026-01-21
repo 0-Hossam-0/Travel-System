@@ -27,6 +27,16 @@ export const resetPasswordConfirmSchema = z.object({
   body: z
     .object({
       password: UserSchema.shape.password,
+      otpCode: z
+        .string({ message: "OTP code is required" })
+        .length(Number(process.env.OTP_DIGIT_COUNTER || 4), {
+          message: `OTP must be exactly ${
+            process.env.OTP_DIGIT_COUNTER || 4
+          } digits`,
+        }),
+      email: z
+        .string({ message: "Email is required" })
+        .email("Please provide a valid email address"),
       confirmPassword: z
         .string({ message: "Confirm password is required" })
         .min(1, "Please confirm your password"),
@@ -39,6 +49,14 @@ export const resetPasswordConfirmSchema = z.object({
 
 export const LoginSchema = z.object({
   body: z.strictObject({
+    email: UserSchema.shape.email,
+    password: UserSchema.shape.password,
+  }),
+});
+
+export const SignupSchema = z.object({
+  body: z.object({
+    name: UserSchema.shape.name,
     email: UserSchema.shape.email,
     password: UserSchema.shape.password,
   }),

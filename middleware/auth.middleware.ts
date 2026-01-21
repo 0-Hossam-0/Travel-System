@@ -1,23 +1,27 @@
-import { IRequest } from './../types/request.types';
-import { ForbiddenException } from "./../utils/response/error.response";
+import { AuthRequest } from "../public types/authentication/request.types";
+import {
+  ForbiddenException,
+  UnAuthorizedException,
+} from "./../utils/response/error.response";
 import { verifyToken } from "./../utils/security/token.security";
-import {  Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 
 export const authMiddleware = async (
-  req: IRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const accessToken = req.cookies?.access_token;
+    const authReq = req as AuthRequest;
+    const accessTokenKey = process.env.ACCESS_TOKEN_KEY as string;
+    const accessToken = authReq.cookies[accessTokenKey];
+    if (!accessToken)
+      throw new UnAuthorizedException("Unauthorized - Access token missing");
 
-    if (!accessToken) {
-      return res.status(401).json({
-        message: "Unauthorized - Access token missing",
-      });
-    }
+    const { user, decoded } = await verifyToken(accessToken);
 
-    req.credentials =await verifyToken(accessToken);
+    authReq.user = user;
+    authReq.decoded = decoded;
 
     next();
   } catch (error) {

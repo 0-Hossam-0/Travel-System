@@ -10,6 +10,7 @@ import { notFound } from "./middleware/notFound.middleware";
 import { globalErrorHandler } from "./utils/response/error.response";
 import authRouter from "./modules/authentication/authentication.controller";
 import cookieParser from "cookie-parser";
+import paymentRouter from "./modules/payment/payment.routes";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,10 +21,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/auth", authRouter);
-app.use("/tours", tourRouter);
-app.use("/hotels", hotelRouter);
-app.use("/api/hotels", hotelRouter);
-
+app.use("/api/payments", paymentRouter);
 app.use("/users", usersRouter);
 
 app.use(notFound);
